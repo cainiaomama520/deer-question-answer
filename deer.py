@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, url_for, redirect, session
 import config
 from exts import db
-from models import User
+from models import User, Question
 
 
 app = Flask(__name__)
@@ -66,14 +66,24 @@ def logout():
     session.pop('user_id')
     return redirect(url_for('login'))
 
-@app.route('/question/', methods=['GET','POST'])
+
+@app.route('/question/', methods=['GET', 'POST'])
 def question():
-    if request.method == 'GET':
-        return render_template('question.html')
+    user_id = session.get('user_id')
+    if user_id:
+        if request.method == 'GET':
+            return render_template('question.html')
+        else:
+            title = request.form.get('title')
+            content = request.form.get('content')
+            question = Question(title=title, content=content)
+            user = User.query.filter(User.id == user_id).first()
+            question.author = user
+            db.session.add(question)
+            db.session.commit()
+            return redirect(url_for('index'))
     else:
-        pass
-
-
+        return redirect(url_for('login'))
 
 
 @app.context_processor   # 上下文处理器函数必须返回一个字典，这个字典的key可以在所有的模板中使用
