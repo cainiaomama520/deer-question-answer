@@ -61,5 +61,32 @@ def regist():
                 return redirect(url_for('login'))
 
 
+@app.route('/logout/')
+def logout():
+    session.pop('user_id')
+    return redirect(url_for('login'))
+
+@app.route('/question/', methods=['GET','POST'])
+def question():
+    if request.method == 'GET':
+        return render_template('question.html')
+    else:
+        pass
+
+
+
+
+@app.context_processor   # 上下文处理器函数必须返回一个字典，这个字典的key可以在所有的模板中使用
+def my_context_processor():
+    user_id = session.get('user_id')
+    if user_id:
+        user = User.query.filter(User.id == user_id).first()
+        if user:
+            return {'user': user}
+
+    return {}
+
+
+
 if __name__ == '__main__':
     app.run()
