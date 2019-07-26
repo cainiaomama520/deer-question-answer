@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, url_for, redirect, session
 import config
 from exts import db
-from models import User, Question
+from models import User, Question, Answer
 
 
 app = Flask(__name__)
@@ -13,7 +13,10 @@ db.init_app(app)
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    content = {
+        "questions": Question.query.order_by('create_time').all()
+    }
+    return render_template('index.html', **content)
 
 
 @app.route('/login/', methods=['GET', 'POST'])
@@ -33,9 +36,29 @@ def login():
             return "没有此用户的信息，请重新注册！"
 
 
+@app.route('/detail/<question_id>')
+def detail(question_id):
+    question_model = Question.query.filter(Question.id == question_id).first()
+    return render_template('detail.html', question=question_model)
 
 
-
+@app.route('/add_answer/', methods=['POST'])
+def add_answer():
+    session_id = session.get('user_id')
+    if session_id:
+        content = request.form.get('answer_content')
+        question_id = request.form.get('question_id')
+        answer = Answer(content=content)
+        user_id = session['user_id']
+        user = User.query.filter(User.id == user_id).first()
+        answer.author = user
+        question = Question.query.filter(Question.id == question_id).first()
+        answer.question = question
+        db.session.add(answer)
+        db.session.commit()
+        return redirect(url_for("detail", question_id=question_id))
+    else:
+        return redirect(url_for('login'))
 
 
 @app.route('/regist/', methods=['GET', 'POST'])
