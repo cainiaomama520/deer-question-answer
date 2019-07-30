@@ -46,14 +46,14 @@ def detail(question_id):
 def add_answer():
     session_id = session.get('user_id')
     if session_id:
-        content = request.form.get('answer_content')
+        content = request.form.get('comment')
         question_id = request.form.get('question_id')
         answer = Answer(content=content)
         user_id = session['user_id']
         user = User.query.filter(User.id == user_id).first()
         answer.author = user
-        question = Question.query.filter(Question.id == question_id).first()
-        answer.question = question
+        question1 = Question.query.filter(Question.id == question_id).first()
+        answer.question = question1
         db.session.add(answer)
         db.session.commit()
         return redirect(url_for("detail", question_id=question_id))

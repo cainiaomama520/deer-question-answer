@@ -22,11 +22,26 @@
     <form action="{{ url_for('add_answer') }}" method="post">
         <div class="form-group">
             <input name="comment" type="text" class="form-control" placeholder="请填写评论">
-            <input type="hidden" name="question_id" value="{{ question_id }}">
+            <input type="hidden" name="question_id" value="{{ question.id }}">
         </div>
         <div class="form-group" style="text-align: right;">
             <button class="btn btn-primary">评论</button>
 
         </div>
     </form>
+    <ul class="answer-list">
+        {% for answer in question.answers %}
+            <li>
+                <div class="user_info">
+                    <img src="{{ url_for('static', filename='images/deer04.png') }}" alt=""
+                    class="avatar">
+                    <span class="username">{{ answer.author.username }}</span>
+                    <span class="create-time">{{ answer.create_time }}</span>
+                    <p class="answer-content">{{ answer.content }}</p>
+                </div>
+            </li>
+
+        {% endfor %}
+
+    </ul>
 {% endblock %}
